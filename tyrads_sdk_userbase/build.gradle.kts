@@ -51,7 +51,8 @@ dependencies {
 
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlinx.serialization.converter)
-    implementation(libs.okhttp.core)
+    // api: init() takes okhttp3.Interceptor (optional extra interceptors, e.g. Chucker).
+    api(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
 
     implementation(libs.play.services.ads.identifier)
