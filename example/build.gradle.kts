@@ -52,6 +52,11 @@ dependencies {
     // Consumes the published JitPack artifact, exactly like a publisher would (mirrors the RN
     // example depending on the published npm package rather than the local source).
     implementation("com.github.tyrads-com:tyrads-sdk-android-user-base:v1.0.0")
+
+    // Chucker-style network inspector, in release builds too so QA can use it on the APKs they get
+    // (mirrors the RN example's always-on NetworkInspector). This is fine for an internal demo app.
+    // In your own app, use debugImplementation(library) + releaseImplementation(library-no-op).
+    implementation(libs.chucker)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

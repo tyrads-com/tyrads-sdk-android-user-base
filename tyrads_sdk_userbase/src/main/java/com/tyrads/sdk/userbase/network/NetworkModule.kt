@@ -6,6 +6,7 @@ import com.tyrads.sdk.userbase.session.SessionStore
 import com.tyrads.sdk.userbase.util.Logger
 import kotlinx.serialization.ExperimentalSerializationApi
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit
  * init" contract (there's no live re-pointing after this is built).
  */
 @OptIn(ExperimentalSerializationApi::class)
-internal class NetworkModule(sessionStore: SessionStore) {
+internal class NetworkModule(sessionStore: SessionStore, interceptors: List<Interceptor> = emptyList()) {
 
     val json = TyradsJson
 
@@ -27,6 +28,8 @@ internal class NetworkModule(sessionStore: SessionStore) {
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         .addInterceptor(AuthInterceptor(sessionStore))
+        // Host-supplied, after auth so they see the final request (e.g. Chucker in the example app).
+        .apply { interceptors.forEach { addInterceptor(it) } }
         .apply {
             if (Logger.debugMode) {
                 addInterceptor(

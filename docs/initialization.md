@@ -22,9 +22,14 @@ TyradsUserBase.init(
     apiKey = "YOUR_API_KEY",
     apiSecret = "YOUR_API_SECRET",
     encKey = "YOUR_32_BYTE_ENC_KEY", // optional — enables AES-256-GCM secure mode
-    debugMode = false, // optional — true logs full request/response traffic via Logcat
+    debugMode = false, // optional, true logs full request/response traffic via Logcat
+    interceptors = emptyList(), // optional, extra OkHttp interceptors (e.g. ChuckerInterceptor)
 )
 ```
+
+`interceptors` are added to the SDK's own OkHttp client, after its auth headers, so a network
+inspector like [Chucker](https://github.com/ChuckerTeam/chucker) sees the exact requests the SDK
+sends. Use it in debug/QA builds only.
 
 A previous login is restored automatically on relaunch (`init()` reads any persisted
 `userId`/`token` back into `getSession()`) — no explicit `restore()` call needed.

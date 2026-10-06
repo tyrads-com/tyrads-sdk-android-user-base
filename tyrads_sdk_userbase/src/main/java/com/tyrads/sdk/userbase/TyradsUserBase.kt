@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonElement
+import okhttp3.Interceptor
 
 /**
  * Headless, API-only TyrAds SDK — no bundled offerwall UI. Every method mirrors the RN
@@ -55,6 +56,7 @@ object TyradsUserBase {
         apiSecret: String,
         encKey: String? = null,
         debugMode: Boolean = false,
+        interceptors: List<Interceptor> = emptyList(),
     ) {
         Logger.debugMode = debugMode
         appContext = context.applicationContext
@@ -62,7 +64,7 @@ object TyradsUserBase {
         store.restore()
         store.setCredentials(apiKey, apiSecret, encKey)
         sessionStore = store
-        val networkModule = NetworkModule(store)
+        val networkModule = NetworkModule(store, interceptors)
         repository = TyradsRepository(networkModule, store)
         Logger.d("Initialized (env=${TyradsConfig.environment})")
     }
@@ -74,10 +76,11 @@ object TyradsUserBase {
         apiSecret: String,
         encKey: String? = null,
         debugMode: Boolean = false,
+        interceptors: List<Interceptor> = emptyList(),
         callback: TyradsCallback,
     ) {
         callbackScope.launch {
-            runCatching { init(context, apiKey, apiSecret, encKey, debugMode) }
+            runCatching { init(context, apiKey, apiSecret, encKey, debugMode, interceptors) }
                 .onSuccess { callback.onSuccess() }
                 .onFailure { callback.onFailure(it.message ?: "Unknown error") }
         }

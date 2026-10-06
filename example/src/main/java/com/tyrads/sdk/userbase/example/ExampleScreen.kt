@@ -1,7 +1,13 @@
 package com.tyrads.sdk.userbase.example
 
 import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.chuckerteam.chucker.api.Chucker
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.tyrads.sdk.userbase.TyradsUserBase
 import com.tyrads.sdk.userbase.models.Campaign
 import com.tyrads.sdk.userbase.models.ActivatedCampaignsResponse
@@ -96,7 +104,14 @@ fun ExampleScreen() {
 
     fun handleInitAndLogin() = runAction("session", { sessionInfo = it }) {
         credentials.save(apiKey, apiSecret, encKey, userId)
-        TyradsUserBase.init(context, apiKey.trim(), apiSecret.trim(), encKey.trim().ifBlank { null }, debugMode = true)
+        TyradsUserBase.init(
+            context,
+            apiKey.trim(),
+            apiSecret.trim(),
+            encKey.trim().ifBlank { null },
+            debugMode = true,
+            interceptors = listOf(ChuckerInterceptor(context)),
+        )
         // No push token to pass: the SDK fetches its own FCM token internally.
         val result = TyradsUserBase.loginUser(userId.trim())
         isReady = true
@@ -132,13 +147,28 @@ fun ExampleScreen() {
 
     LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         item {
-            Text("Tyrads User-Base", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = ExampleColors.titleText)
-            Text(
-                "Example and demo App",
-                fontSize = 13.sp,
-                color = ExampleColors.subtitleText,
-                modifier = Modifier.padding(top = 2.dp, bottom = 16.dp),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 16.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Tyrads User-Base", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = ExampleColors.titleText)
+                    Text(
+                        "Example and demo App",
+                        fontSize = 13.sp,
+                        color = ExampleColors.subtitleText,
+                        modifier = Modifier.padding(top = 2.dp),
+                    )
+                }
+                // Network inspector (Chucker), the Android counterpart of the RN example's NetworkInspector.
+                Text(
+                    "Chucker",
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(ExampleColors.buttonPrimary, RoundedCornerShape(8.dp))
+                        .clickable { context.startActivity(Chucker.getLaunchIntent(context)) }
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                )
+            }
         }
 
         item {
@@ -199,7 +229,7 @@ fun ExampleScreen() {
         item {
             SectionCard("6. Offerwall URL (no webview shown)") {
                 Hint("Same URL native showOffers() opens in a webview — returned as JSON instead of rendered")
-                LabeledInput("Route (optional)", offerwallRoute, { offerwallRoute = it }, "e.g. offers, activeOffers")
+                LabeledInput("Route (optional)", offerwallRoute, { offerwallRoute = it }, "e.g. support, settings")
                 ActionButton("Get Offerwall URL", ::handleGetOfferwallUrl, loading = loadingKey == "offerwallUrl", enabled = isReady)
                 JsonOutput(offerwallUrl)
             }
