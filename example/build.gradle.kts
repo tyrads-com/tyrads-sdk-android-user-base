@@ -48,7 +48,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":tyrads_sdk_userbase"))
+    // Consumes the published JitPack artifact, exactly like a publisher would (mirrors the RN
+    // example depending on the published npm package rather than the local source).
+    implementation("com.github.tyrads-com:tyrads-sdk-android-user-base:v1.0.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
