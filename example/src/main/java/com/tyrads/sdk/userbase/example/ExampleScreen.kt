@@ -20,6 +20,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tyrads.sdk.userbase.TyradsUserBase
+import com.tyrads.sdk.userbase.config.TyradsConfig
+import com.tyrads.sdk.userbase.config.TyradsEnvironment
 import com.tyrads.sdk.userbase.models.Campaign
 import com.tyrads.sdk.userbase.models.ActivatedCampaignsResponse
 import com.tyrads.sdk.userbase.models.TyradsInitResponse
@@ -96,6 +98,8 @@ fun ExampleScreen() {
 
     fun handleInitAndLogin() = runAction("session", { sessionInfo = it }) {
         credentials.save(apiKey, apiSecret, encKey, userId)
+        // stag branch only. main ships with the SDK's default (PRODUCTION).
+        TyradsConfig.setEnvironment(TyradsEnvironment.STAGING)
         TyradsUserBase.init(context, apiKey.trim(), apiSecret.trim(), encKey.trim().ifBlank { null }, debugMode = true)
         // No push token to pass: the SDK fetches its own FCM token internally.
         val result = TyradsUserBase.loginUser(userId.trim())

@@ -11,10 +11,9 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        // Production identifier: `main` is what publishers clone as the example. The staging
-        // equivalent lives only on the internal `stag` branch (`.stag` applicationId, staging
-        // environment), never merged into main. Mirrors the RN User Base example.
-        applicationId = "com.example.androiduserbase.prod"
+        // Staging identifier: internal-only branch, never merged into main. The publisher-facing
+        // example lives on `main` with the production applicationId instead.
+        applicationId = "com.example.androiduserbase.stag"
         minSdk = 24
         targetSdk = 35
         versionCode = 2
