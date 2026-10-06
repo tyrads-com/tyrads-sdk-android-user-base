@@ -22,7 +22,7 @@ import org.junit.Test
 /**
  * Parses payloads in the exact shape the production API returns. The envelope's `responseTime` is
  * fractional and `account/engagement` nests `CurrencySales` one level deeper than the other
- * endpoints — both have broken parsing before, so they're pinned here.
+ * endpoints. Both have broken parsing before, so they're pinned here.
  */
 class SerializationTest {
 

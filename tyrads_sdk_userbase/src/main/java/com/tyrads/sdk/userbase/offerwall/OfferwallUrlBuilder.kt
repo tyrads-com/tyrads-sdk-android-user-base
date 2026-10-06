@@ -6,13 +6,13 @@ import com.tyrads.sdk.userbase.models.TyradsOfferwallUrlOptions
 import com.tyrads.sdk.userbase.session.SessionStore
 
 /**
- * Pure client-side URL builder — no WebView, no network call. The host app renders this URL
+ * Pure client-side URL builder: no WebView, no network call. The host app renders this URL
  * however it wants (this is the "headless" User Base contract, matching the RN SDK).
  */
 internal object OfferwallUrlBuilder {
     fun build(sessionStore: SessionStore, options: TyradsOfferwallUrlOptions?): String {
         val token = sessionStore.token
-        check(!token.isNullOrEmpty()) { "No active session — call loginUser() first" }
+        check(!token.isNullOrEmpty()) { "No active session, call loginUser() first" }
 
         val builder = Uri.parse(TyradsConfig.webSdkHost).buildUpon()
             .appendQueryParameter("token", token)

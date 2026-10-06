@@ -17,7 +17,7 @@ import javax.crypto.spec.SecretKeySpec
 
 /**
  * `android.util.Base64` is a framework stub in local unit tests, so it's redirected to the JDK's
- * encoder here — everything else (the cipher, the content/tag split) is the real implementation.
+ * encoder here. Everything else (the cipher, the content/tag split) is the real implementation.
  */
 class AesGcmCryptoTest {
 
@@ -98,7 +98,7 @@ class AesGcmCryptoTest {
     private fun decrypt(content: String, iv: String, tag: String, key: String): String =
         decryptRaw(decodeBase64(content), decodeBase64(iv), decodeBase64(tag), key)
 
-    /** GCM expects ciphertext and tag concatenated — the envelope splits them, so rejoin to verify. */
+    /** GCM expects ciphertext and tag concatenated, but the envelope splits them, so rejoin to verify. */
     private fun decryptRaw(content: ByteArray, iv: ByteArray, tag: ByteArray, key: String): String {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(

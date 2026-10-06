@@ -84,7 +84,7 @@ data class CampaignEvent(
 
 /**
  * Both `GET campaigns` (list) and `GET campaigns/:id` (detail) return this exact shape under
- * `mode=userbase` — confirmed against a live production account (2026-09-23); there is no
+ * `mode=userbase`, confirmed against a live production account (2026-09-23); there is no
  * separate, richer "detail" schema in this mode unlike the full tyrads-sdk-android's API.
  */
 @Serializable
@@ -197,8 +197,8 @@ data class CampaignEventSummary(
 )
 
 /**
- * Unverified against live data — this test account had zero activated campaigns, so this shape
- * (ported from the RN SDK's TypeScript types) has not been confirmed against a real payload.
+ * Ported from the RN SDK's TypeScript types. Confirmed against a live production account with an
+ * activated campaign (2026-10-06).
  */
 @Serializable
 data class ActivatedCampaign(

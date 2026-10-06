@@ -29,8 +29,8 @@ import kotlinx.serialization.json.JsonElement
 import okhttp3.Interceptor
 
 /**
- * Headless, API-only TyrAds SDK — no bundled offerwall UI. Every method mirrors the RN
- * `@tyrads.com/tyrads-sdk-react-user-base` package's public surface 1:1, backed by the same
+ * Headless, API-only TyrAds SDK with no bundled offerwall UI. Every method mirrors the RN
+ * `@tyrads.com/tyrads-sdk-react-native-user-base` package's public surface 1:1, backed by the same
  * device-data / activity-tracking contract as the native tyrads-sdk-android.
  *
  * Call [init] once, then [loginUser] before any campaign/tracking/offerwall call.

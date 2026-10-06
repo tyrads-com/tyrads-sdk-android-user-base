@@ -8,7 +8,7 @@ enum class TyradsEnvironment {
 /**
  * Environment / version constants for the User Base SDK.
  *
- * The native tyrads-sdk-android has no environment toggle (single hardcoded prod URL) — this
+ * The native tyrads-sdk-android has no environment toggle (single hardcoded prod URL). This
  * mirrors the RN User Base SDK instead, which exposes [setEnvironment]. Call it (if at all)
  * before [com.tyrads.sdk.userbase.TyradsUserBase.init], since the network layer is built once
  * off whatever [BASE_URL] currently resolves to.

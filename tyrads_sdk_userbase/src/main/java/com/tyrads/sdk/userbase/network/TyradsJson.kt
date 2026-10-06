@@ -3,7 +3,7 @@ package com.tyrads.sdk.userbase.network
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
-/** The single JSON config used for every request body and response — shared so tests exercise it too. */
+/** The single JSON config used for every request body and response, shared so tests exercise it too. */
 @OptIn(ExperimentalSerializationApi::class)
 internal val TyradsJson: Json = Json {
     ignoreUnknownKeys = true

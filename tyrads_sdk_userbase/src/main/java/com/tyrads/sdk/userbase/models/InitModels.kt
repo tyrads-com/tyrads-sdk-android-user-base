@@ -64,7 +64,7 @@ data class TyradsAppInfo(
     val premiumColor: String = "",
 )
 
-/** Local, in-memory snapshot returned by `getSession()` — not a network response. */
+/** Local, in-memory snapshot returned by `getSession()`, not a network response. */
 data class TyradsSession(
     val userId: String,
     val token: String?,

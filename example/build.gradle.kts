@@ -32,7 +32,7 @@ android {
 
     buildTypes {
         release {
-            // Debug keystore so QA can install release builds directly — not for Play Store.
+            // Debug keystore so QA can install release builds directly. Not for Play Store.
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

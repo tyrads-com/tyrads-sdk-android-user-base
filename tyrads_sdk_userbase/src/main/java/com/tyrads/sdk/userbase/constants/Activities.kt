@@ -1,7 +1,7 @@
 package com.tyrads.sdk.userbase.constants
 
 /**
- * Exact PascalCase activity names expected by the backend — verified against
+ * Exact PascalCase activity names expected by the backend, verified against
  * TrackingActivities.swift (native iOS SDK) and TyradsActivity (native Android SDK).
  * A prior camelCase mismatch caused live 422s, so these values must not be reformatted.
  */
