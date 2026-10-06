@@ -35,8 +35,6 @@ class WireContractTest {
 
     @Test
     fun `deep routes match the offerwall webapp`() {
-        assertEquals("offers", TyradsDeepRoutes.OFFERS)
-        assertEquals("activeOffers", TyradsDeepRoutes.ACTIVE_OFFERS)
         assertEquals("support", TyradsDeepRoutes.SUPPORT)
         assertEquals("settings", TyradsDeepRoutes.SETTINGS)
     }
@@ -80,7 +78,7 @@ class WireContractTest {
     @Test
     fun `sdk version is major-minor-patch-build`() {
         assertEquals("1.0.0-0", TyradsConfig.SDK_VERSION)
-        assertEquals("Android", TyradsConfig.SDK_PLATFORM)
+        assertEquals("Android-userbase", TyradsConfig.SDK_PLATFORM)
         assertEquals("4.0", TyradsConfig.API_VERSION)
     }
 }

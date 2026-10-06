@@ -18,6 +18,7 @@ import com.tyrads.sdk.userbase.models.TyradsSession
 import com.tyrads.sdk.userbase.network.NetworkModule
 import com.tyrads.sdk.userbase.network.TyradsRepository
 import com.tyrads.sdk.userbase.offerwall.OfferwallUrlBuilder
+import com.tyrads.sdk.userbase.push.TyradsPushToken
 import com.tyrads.sdk.userbase.session.SessionStore
 import com.tyrads.sdk.userbase.util.Logger
 import kotlinx.coroutines.CoroutineScope
@@ -90,7 +91,10 @@ object TyradsUserBase {
         ensureInitialized()
         val deviceData = DeviceDataCollector.collect(appContext)
         val identity = DeviceDataCollector.resolveAdvertisingIdentity(appContext, sessionStore)
-        val response = repository.login(userId, deviceData, identity.identifierType, identity.identifier, options)
+        val pushToken = TyradsPushToken.get(appContext)
+        val response = repository.login(
+            userId, deviceData, identity.identifierType, identity.identifier, pushToken, options,
+        )
         sessionStore.setUser(response.data.accountInfo.publisherUserId, response.data.token)
         runCatching { repository.trackActivity(TyradsActivity.INITIALIZED) }
             .onFailure { Logger.w("Failed to track Initialized activity", it) }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -128,35 +127,6 @@ fun ActionButton(
         } else {
             Text(label, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
-    }
-}
-
-@Composable
-fun EnvToggleRow(active: String, enabled: Boolean, onSelect: (String) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-        EnvToggleButton("Production", active == "production", enabled) { onSelect("production") }
-        EnvToggleButton("Staging", active == "staging", enabled) { onSelect("staging") }
-    }
-}
-
-@Composable
-private fun RowScope.EnvToggleButton(label: String, active: Boolean, enabled: Boolean, onClick: () -> Unit) {
-    val borderColor = if (active) ExampleColors.envButtonActiveBg else ExampleColors.inputBorder
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .background(if (active) ExampleColors.envButtonActiveBg else ExampleColors.inputBackground, RoundedCornerShape(8.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(8.dp))
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 10.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            label,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (active) Color.White else ExampleColors.envButtonText.copy(alpha = if (enabled) 1f else 0.45f),
-        )
     }
 }
 

@@ -34,7 +34,8 @@ data class TyradsDeviceData(
     val carrierName: String,
     val supportedAbis: String,
     val cpuType: String,
-    val totalMemory: Long,
+    /** Total device storage (not RAM, despite the name) in decimal GB, 2 decimals. */
+    val totalMemory: Double,
     val screenWidth: Int,
     val screenHeight: Int,
     val screenDensity: Float,

@@ -16,11 +16,6 @@ happens here.
 
 ```kotlin
 import com.tyrads.sdk.userbase.TyradsUserBase
-import com.tyrads.sdk.userbase.config.TyradsConfig
-import com.tyrads.sdk.userbase.config.TyradsEnvironment
-
-TyradsConfig.setEnvironment(TyradsEnvironment.PRODUCTION) // optional, defaults to PRODUCTION —
-                                                            // must be set before init()
 
 TyradsUserBase.init(
     context = applicationContext,
@@ -56,7 +51,6 @@ TyradsUserBase.loginUser(
     options = TyradsInitOptions(
         engagementId = 123,
         placementId = 456,
-        devicePushToken = myFcmToken, // see Push Notifications
         mediaSourceInfo = TyradsMediaSourceInfo(
             mediaSourceName = "Facebook",
             mediaCampaignName = "Summer2023Promo",
@@ -90,7 +84,6 @@ TyradsUserBase.loginUser(
 |---|---|---|
 | `engagementId` | `Int?` | Identifies the engagement placement. |
 | `placementId` | `Int?` | Differentiates coin placements within your app. Also used by `getOfferwallUrl()`. |
-| `devicePushToken` | `String?` | A push token your app already obtained — relayed to the backend. See [Push Notifications](initialization/push-notifications.md). |
 | `mediaSourceInfo` | `TyradsMediaSourceInfo?` | Attribution data. |
 | `userInfo` | `TyradsUserInfo?` | User profile metadata. |
 
@@ -208,8 +201,8 @@ import com.tyrads.sdk.userbase.models.TyradsOfferwallUrlOptions
 
 val url = TyradsUserBase.getOfferwallUrl(
     TyradsOfferwallUrlOptions(
-        route = TyradsDeepRoutes.ACTIVE_OFFERS, // optional
-        campaignId = "42",                       // optional
+        route = TyradsDeepRoutes.SETTINGS, // optional, omit for the main offerwall
+        campaignId = "42",                 // optional
     ),
 )
 ```

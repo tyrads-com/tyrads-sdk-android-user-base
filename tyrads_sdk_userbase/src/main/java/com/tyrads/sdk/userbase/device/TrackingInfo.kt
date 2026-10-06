@@ -1,15 +1,17 @@
 package com.tyrads.sdk.userbase.device
 
-import android.app.ActivityManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.os.Environment
+import android.os.StatFs
 import android.telephony.TelephonyManager
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import java.util.TimeZone
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 /** Telephony, CPU, memory, screen, network and clock fields of the device-data payload. */
 internal object TrackingInfo {
@@ -68,11 +70,18 @@ internal object TrackingInfo {
 
     fun getSupported64BitAbis(): String = Build.SUPPORTED_64_BIT_ABIS.joinToString(",")
 
-    fun getTotalMemoryBytes(context: Context): Long {
-        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return 0L
-        val info = ActivityManager.MemoryInfo()
-        am.getMemoryInfo(info)
-        return info.totalMem
+    /**
+     * Total device storage in decimal GB (1e9, not 1024^3), 2 decimals. Sent as `totalMemory`, which
+     * despite the name carries storage, not RAM: TyradsSDKIOS's getTotalStorageGB() does the same,
+     * and the RN User Base SDK switched to it too. Same source as RN's getTotalDiskCapacity() on
+     * Android (system + data partitions). -1.0 if StatFs fails.
+     */
+    fun getTotalStorageGb(): Double = try {
+        val bytes = StatFs(Environment.getRootDirectory().absolutePath).totalBytes +
+            StatFs(Environment.getDataDirectory().absolutePath).totalBytes
+        (bytes / 1_000_000_000.0 * 100).roundToLong() / 100.0
+    } catch (t: Throwable) {
+        -1.0
     }
 
     /** Full physical screen size in density-independent pixels (dp), rounded. */

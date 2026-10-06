@@ -20,7 +20,10 @@ object TyradsConfig {
     const val SDK_PATCH = "0"
     const val SDK_BUILD = "0"
     const val SDK_VERSION = "$SDK_MAJOR.$SDK_MINOR.$SDK_PATCH-$SDK_BUILD"
-    const val SDK_PLATFORM = "Android"
+    // "-userbase" suffix so the backend can tell this SDK apart from the full tyrads-sdk-android
+    // (mirrors the RN User Base SDK's "React Native-userbase"). Sent as X-SDK-Platform and as
+    // deviceData.sdkPlatform.
+    const val SDK_PLATFORM = "Android-userbase"
 
     @Volatile
     var environment: TyradsEnvironment = TyradsEnvironment.PRODUCTION

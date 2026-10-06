@@ -20,7 +20,7 @@ dependencies {
 }
 ```
 
-The version is the release tag (e.g. `v1.0.0`) — see the [Changelog](../CHANGELOG.md) for available
+The version is the release tag (e.g. `v1.0.0`). See the [Changelog](../CHANGELOG.md) for available
 releases.
 
 ## Dependencies
@@ -36,6 +36,7 @@ small, standard Android/Google libraries come along transitively:
 | `com.google.android.gms:play-services-ads-identifier` | GAID (Google Advertising ID) for attribution — see [Obtaining Advertising ID's](obtaining-advertising-ids.md) |
 | `com.google.android.gms:play-services-appset` | Google App Set ID (part of the device-data payload) |
 | `com.scottyab:rootbeer-lib` | Root detection in device data |
+| `com.google.firebase:firebase-messaging` | FCM push token, fetched internally and scoped to TyrAds' own Firebase project. Your app needs no Firebase setup, see [Push Notifications](initialization/push-notifications.md) |
 | `android.os.Build` / `PackageManager` / `TelephonyManager` / `ConnectivityManager` (platform APIs, no extra library) | Device identity, network, telephony info sent on login |
 | `javax.crypto.Cipher` (standard JDK, AES/GCM — no extra library) | AES-256-GCM payload encryption when `encKey` is set |
 | `android.content.SharedPreferences` (platform API, no extra library) | Persisting session/credentials on-device |
@@ -50,6 +51,7 @@ SDK's own Gradle dependency, same as any other Android library.
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 ```
 
 `READ_PHONE_STATE` is only used for `Build.getSerial()` on API 26–28 (capped to `UNKNOWN` on API

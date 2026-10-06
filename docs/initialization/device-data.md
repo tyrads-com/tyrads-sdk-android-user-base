@@ -22,7 +22,7 @@ APIs:
 | `cpuCores` | Processor count (string) |
 | `cpuModel`, `cpuHardware` | `Build.SOC_MODEL` (API 31+, else `"Unknown"`) / `Build.HARDWARE` |
 | `osArch` | `os.arch` system property |
-| `totalMemory` | Total device RAM in bytes |
+| `totalMemory` | **Total device storage** (not RAM), decimal GB with 2 decimals, e.g. `128.03`. Matches the other TyrAds SDKs |
 | `maxMemory`, `freeMemory` | App heap in MB (strings) |
 | `screenWidth`, `screenHeight` | Full screen size in dp |
 | `screenDensity` | Display density |
@@ -41,7 +41,8 @@ APIs:
 | `buildSign` | SHA-256 of the APK signing certificate(s), uppercase hex |
 | `serialNumber` | `Build.getSerial()` (`"unknown"` without permission) |
 | `deviceAge` | Estimated device manufacture date, epoch milliseconds |
-| `apiVersion`, `sdkVersion`, `sdkPlatform` | This SDK's version constants / `"Android"` |
+| `apiVersion`, `sdkVersion` | This SDK's version constants |
+| `sdkPlatform` | `"Android-userbase"`, so the backend can tell this SDK apart from the full Android SDK |
 
 ### Not replicated
 

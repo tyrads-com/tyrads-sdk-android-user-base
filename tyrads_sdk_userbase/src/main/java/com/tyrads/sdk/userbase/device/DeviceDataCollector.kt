@@ -58,7 +58,7 @@ internal object DeviceDataCollector {
             carrierName = TrackingInfo.getCarrierName(app),
             supportedAbis = TrackingInfo.getSupportedAbis(),
             cpuType = TrackingInfo.getCpuType(),
-            totalMemory = TrackingInfo.getTotalMemoryBytes(app),
+            totalMemory = TrackingInfo.getTotalStorageGb(),
             screenWidth = TrackingInfo.getScreenWidthDp(app),
             screenHeight = TrackingInfo.getScreenHeightDp(app),
             screenDensity = TrackingInfo.getScreenDensity(app),

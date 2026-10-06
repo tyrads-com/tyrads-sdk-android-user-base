@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.google.services)
 }
 
 android {
@@ -9,10 +8,13 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.tyrads.sdk.userbase.example"
+        // Production identifier: `main` is what publishers clone as the example. The staging
+        // equivalent lives only on the internal `stag` branch (`.stag` applicationId, staging
+        // environment), never merged into main. Mirrors the RN User Base example.
+        applicationId = "com.example.androiduserbase.prod"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -56,9 +58,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     debugImplementation(libs.androidx.ui.tooling)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.messaging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

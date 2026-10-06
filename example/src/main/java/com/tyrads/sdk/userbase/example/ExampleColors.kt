@@ -17,8 +17,6 @@ object ExampleColors {
     val inputText = Color(0xFF1A1A1A)
     val placeholder = Color(0xFF9AA0A6)
 
-    val envButtonText = Color(0xFF4A4F57)
-    val envButtonActiveBg = Color(0xFF0071BC)
 
     val buttonPrimary = Color(0xFF0071BC)
     val buttonDanger = Color(0xFFC0392B)

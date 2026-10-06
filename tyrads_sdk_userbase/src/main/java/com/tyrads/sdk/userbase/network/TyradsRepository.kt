@@ -31,6 +31,7 @@ internal class TyradsRepository(
         deviceData: TyradsDeviceData,
         identifierType: String,
         identifier: String,
+        devicePushToken: String?,
         options: TyradsInitOptions?,
     ): TyradsInitResponse {
         val request = TyradsInitRequest(
@@ -39,7 +40,7 @@ internal class TyradsRepository(
             deviceData = deviceData,
             identifierType = identifierType,
             identifier = identifier,
-            devicePushToken = options?.devicePushToken,
+            devicePushToken = devicePushToken,
             engagementId = options?.engagementId,
             placementId = options?.placementId,
             mediaSourceName = options?.mediaSourceInfo?.mediaSourceName,

@@ -32,5 +32,6 @@ data class TyradsInitOptions(
     val placementId: Int? = null,
     val mediaSourceInfo: TyradsMediaSourceInfo? = null,
     val userInfo: TyradsUserInfo? = null,
+    @Deprecated("Ignored. The SDK fetches its own FCM token, scoped to TyrAds' Firebase project.")
     val devicePushToken: String? = null,
 )

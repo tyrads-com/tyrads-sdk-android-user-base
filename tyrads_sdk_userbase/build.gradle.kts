@@ -58,6 +58,11 @@ dependencies {
     implementation(libs.play.services.appset)
     implementation(libs.rootbeer.lib)
 
+    // FCM token scoped to TyrAds' own Firebase project (see push/TyradsPushToken.kt). The host app
+    // needs no Firebase setup of its own.
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
