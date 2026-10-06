@@ -1,0 +1,200 @@
+{
+  "project_info": {
+    "project_number": "365439351599",
+    "project_id": "tyrsdk-32c6e",
+    "storage_bucket": "tyrsdk-32c6e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:ea4234e54654c55fb87fda",
+        "android_client_info": {
+          "package_name": "com.Belandagames.BadGuys"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:e30ed91234d02c49b87fda",
+        "android_client_info": {
+          "package_name": "com.example.androiduserbase.prod"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:cb94a9df8c6990ddb87fda",
+        "android_client_info": {
+          "package_name": "com.example.reactnativeuserbase.prod"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:e6b0d5b901ea725eb87fda",
+        "android_client_info": {
+          "package_name": "com.tyrads.example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:1a7bd0774f10e7efb87fda",
+        "android_client_info": {
+          "package_name": "com.tyrads.sdk.example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:a4f632af6d65cd4ab87fda",
+        "android_client_info": {
+          "package_name": "com.tyrads.tyradsSdk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:f4d793b204e29feab87fda",
+        "android_client_info": {
+          "package_name": "com.tyrads.tyrads_sdk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:146c1c77609f4e52b87fda",
+        "android_client_info": {
+          "package_name": "com.tyrads.tyradsdk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:1087cb9702571d62b87fda",
+        "android_client_info": {
+          "package_name": "com.tyrads.tyradsunitysdk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365439351599:android:aaa3252dce0de296b87fda",
+        "android_client_info": {
+          "package_name": "tyradssdk.example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoYclkYrJ80QrvRlvpCDAJSf3XtWprp60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

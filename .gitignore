@@ -11,4 +11,3 @@ local.properties
 **/build/
 *.hprof
 .kotlin/
-google-services.json

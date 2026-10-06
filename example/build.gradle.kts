@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    // Only so the example looks like a typical publisher app that has its own default Firebase app.
+    // The SDK never reads it: it fetches its FCM token from TyrAds' own Firebase project.
+    alias(libs.plugins.google.services)
 }
 
 android {
