@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Pins the exact strings that go over the wire. Activity names are case-sensitive on the backend —
+ * Pins the exact strings that go over the wire. Activity names are case-sensitive on the backend:
  * a camelCase variant returned 422s in another SDK, so the PascalCase values are locked down here.
  */
 class WireContractTest {

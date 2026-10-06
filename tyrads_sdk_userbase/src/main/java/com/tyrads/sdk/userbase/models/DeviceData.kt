@@ -50,7 +50,7 @@ data class TyradsDeviceData(
     val googleAppSetID: String,
     val deviceUpTime: String,
     val deviceBootTime: String,
-    // Behavioral telemetry isn't tracked — always 0, but the keys must still be sent.
+    // Behavioral telemetry isn't tracked: always 0, but the keys must still be sent.
     val keyboardNumEvents: Int = 0,
     val keyboardScore: Int = 0,
     val clipboardNumEvents: Int = 0,

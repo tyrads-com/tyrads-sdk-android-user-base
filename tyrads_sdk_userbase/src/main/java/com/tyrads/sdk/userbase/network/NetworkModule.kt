@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Builds the shared Retrofit/OkHttp client once, off whatever [TyradsConfig.baseUrl] resolves to
- * at construction time — matching both the RN and native SDKs' "environment must be set before
+ * at construction time, matching both the RN and native SDKs' "environment must be set before
  * init" contract (there's no live re-pointing after this is built).
  */
 @OptIn(ExperimentalSerializationApi::class)

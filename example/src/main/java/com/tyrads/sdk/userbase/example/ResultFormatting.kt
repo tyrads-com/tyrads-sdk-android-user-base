@@ -19,7 +19,7 @@ fun formatSuccessJson(element: JsonElement): JsonResult =
 fun formatSuccessUrl(url: String): JsonResult =
     formatSuccessJson(buildJsonObject { put("url", url) })
 
-/** Mirrors the RN example's `error?.data ?? error?.message` — prefers the raw server body. */
+/** Mirrors the RN example's `error?.data ?? error?.message`: prefers the raw server body. */
 fun formatError(t: Throwable): JsonResult {
     val element: JsonElement = when (t) {
         is TyradsHttpError.Server -> t.body

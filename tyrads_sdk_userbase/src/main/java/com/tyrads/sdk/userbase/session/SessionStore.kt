@@ -75,7 +75,7 @@ internal class SessionStore(context: Context) {
         currentLanguage = prefs.getString(TyradsKeyNames.CURRENT_LANGUAGE, "en-US") ?: "en-US"
     }
 
-    /** Clears the active session only — credentials from `init()` are kept, matching the RN SDK. */
+    /** Clears the active session only. Credentials from `init()` are kept, matching the RN SDK. */
     fun clearSession() {
         userId = ""
         token = null

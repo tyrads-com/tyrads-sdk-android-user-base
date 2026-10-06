@@ -27,7 +27,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
-        // Avoid invokedynamic StringConcatFactory in the AAR — R8 (ours and publishers') can't resolve it.
+        // Avoid invokedynamic StringConcatFactory in the AAR, since R8 (ours and publishers') can't resolve it.
         freeCompilerArgs += "-Xstring-concat=inline"
     }
 

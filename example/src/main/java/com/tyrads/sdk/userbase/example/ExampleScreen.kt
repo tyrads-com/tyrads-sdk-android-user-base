@@ -218,7 +218,7 @@ fun ExampleScreen() {
 
         item {
             SectionCard("5. Activate Campaign") {
-                Hint("POST campaigns/:id/activate — uses Campaign ID above")
+                Hint("POST campaigns/:id/activate, uses Campaign ID above")
                 ActionButton(
                     "Activate Campaign",
                     ::handleActivate,
@@ -232,7 +232,7 @@ fun ExampleScreen() {
 
         item {
             SectionCard("6. Offerwall URL (no webview shown)") {
-                Hint("Same URL native showOffers() opens in a webview — returned as JSON instead of rendered")
+                Hint("Same URL native showOffers() opens in a webview, returned as JSON instead of rendered")
                 LabeledInput("Route (optional)", offerwallRoute, { offerwallRoute = it }, "e.g. support, settings")
                 ActionButton("Get Offerwall URL", ::handleGetOfferwallUrl, loading = loadingKey == "offerwallUrl", enabled = isReady)
                 JsonOutput(offerwallUrl)

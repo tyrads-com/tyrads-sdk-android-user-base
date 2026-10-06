@@ -16,7 +16,7 @@ APIs:
 | `device` | `"phone"` or `"tablet"` |
 | `virtual` | Emulator detection |
 | `rooted` | Root detection ([RootBeer](https://github.com/scottyab/rootbeer)) |
-| `carrierName`, `mcc`, `mnc`, `mccMnc`, `countryIso`, `isRoaming`, `simOperatorName`, `simOperator`, `simCountryIso`, `phoneType` | `TelephonyManager` (`"Unknown"` when unavailable) — no `READ_PHONE_STATE` needed |
+| `carrierName`, `mcc`, `mnc`, `mccMnc`, `countryIso`, `isRoaming`, `simOperatorName`, `simOperator`, `simCountryIso`, `phoneType` | `TelephonyManager` (`"Unknown"` when unavailable), no `READ_PHONE_STATE` needed |
 | `supportedAbis`, `supported32BitAbis`, `supported64BitAbis` | `Build.SUPPORTED_*ABIS`, comma-separated |
 | `cpuType` | Primary ABI |
 | `cpuCores` | Processor count (string) |
@@ -47,5 +47,5 @@ APIs:
 ### Not replicated
 
 `keyboardNumEvents`/`Score`, `clipboardNumEvents`/`Score`, and `click`/`mouse`/`touchNumEvents`
-are always sent as `0` — per-app behavioral telemetry (keyboard/clipboard/touch event counters)
+are always sent as `0`. Per-app behavioral telemetry (keyboard/clipboard/touch event counters)
 isn't tracked by this SDK.
