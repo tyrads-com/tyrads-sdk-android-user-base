@@ -1,10 +1,10 @@
-# TyrAds SDK Android — User Base
+# TyrAds SDK Android User Base
 
-Headless, API-only TyrAds SDK for Android. No bundled offerwall UI — every call returns typed data
+[![](https://jitpack.io/v/tyrads-com/tyrads-sdk-android-user-base.svg)](https://jitpack.io/#tyrads-com/tyrads-sdk-android-user-base)
+
+Headless, API-only TyrAds SDK for Android. No bundled offerwall UI. Every call returns typed data
 so you build your own UI (or none at all) on top of it: login, campaigns, activity tracking, and a
 client-side offerwall URL builder.
-
-Full documentation: [docs/SUMMARY.md](docs/SUMMARY.md).
 
 ## Requirements
 
@@ -20,6 +20,8 @@ Full documentation: [docs/SUMMARY.md](docs/SUMMARY.md).
 // settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
+        google()
+        mavenCentral()
         maven { url = uri("https://jitpack.io") }
     }
 }
@@ -50,6 +52,9 @@ TyradsUserBase.init(context, apiKey = "YOUR_API_KEY", apiSecret = "YOUR_API_SECR
 val session = TyradsUserBase.loginUser("user_123")
 ```
 
+Push notifications need nothing from you: the SDK fetches its own FCM token internally and sends
+it on login.
+
 ### 3. Fetch data
 
 ```kotlin
@@ -60,43 +65,34 @@ val activated = TyradsUserBase.getActivatedCampaigns()
 TyradsUserBase.activateCampaign(campaigns.first().campaignId.toString())
 ```
 
-See [docs/initialization.md](docs/initialization.md) for the full flow, including advanced login
-options (attribution, user info), the offerwall-URL builder, tracking, and logout.
-
 Every method has a `suspend fun` variant and a callback overload
 (`TyradsCallback`/`TyradsResultCallback<T>`/`TyradsLoginCallback`) for Java callers.
 
 ## API
 
-* `init(context, apiKey, apiSecret, encKey?, debugMode?)` — stores credentials, prepares the HTTP
+* `init(context, apiKey, apiSecret, encKey?, debugMode?)`: stores credentials, prepares the HTTP
   client. No network call.
-* `loginUser(userId, options?)` — `POST initialize`, opens the session.
-* `logoutUser()` — clears the local session. Credentials from `init()` are kept.
-* `getSession()` — local session state. No network call.
-* `changeLanguage(lang)` — sets the `lang` query param used by campaign endpoints.
-* `getCampaigns()` — recommended/targeted campaigns.
+* `loginUser(userId, options?)`: `POST initialize`, opens the session and sends the SDK-managed FCM token.
+* `logoutUser()`: clears the local session. Credentials from `init()` are kept.
+* `getSession()`: local session state. No network call.
+* `changeLanguage(lang)`: sets the `lang` query param used by campaign endpoints.
+* `getCampaigns()`: recommended/targeted campaigns.
 * `getCampaignDetail(campaignId)`
 * `getActivatedCampaigns()`
 * `getActivatedSummary()`
-* `getEngagement()` — currency-sale info.
+* `getEngagement()`: currency-sale info.
 * `activateCampaign(campaignId)`
-* `trackActivity(activity)` — use `TyradsActivity` constants or any custom string.
-* `getOfferwallUrl(options?)` — builds the same URL a native offerwall would open in a webview,
-  returned as a plain `String` instead of rendered. Requires an active session.
+* `trackActivity(activity)`: use `TyradsActivity` constants or any custom string.
+* `getOfferwallUrl(options?)`: builds the same URL a native offerwall would open in a webview,
+  returned as a plain `String` instead of rendered. Optional `route` (`TyradsDeepRoutes.SUPPORT`/
+  `SETTINGS`). Requires an active session.
 
-## Docs
-
-* [Prerequisite](docs/prerequisite.md)
-* [Installation](docs/installation.md)
-* [Initialization](docs/initialization.md)
-  * [Deeplinking Routes](docs/initialization/deeplinking-routes.md)
-  * [Device Data](docs/initialization/device-data.md)
-  * [Push Notifications](docs/initialization/push-notifications.md)
-* [Obtaining Advertising ID's](docs/obtaining-advertising-ids.md)
-* [Changelog](CHANGELOG.md)
+Need the full reference (advanced `loginUser` options, device data fields, push notifications)?
+Ask your TyrAds contact for GitBook access to the full docs. See also the [Changelog](CHANGELOG.md).
 
 ## Example app
 
 `example/` is a small Android app demonstrating every SDK method against a real backend, with a
-button per call and a JSON viewer for the response. See
+button per call and a JSON viewer for the response. It installs the SDK from JitPack, the same way
+a publisher would. See
 [example/README.md](example/README.md) to run it.
