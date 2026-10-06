@@ -1,0 +1,3 @@
+<resources>
+    <style name="Theme.TyradsUserBaseExample" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
