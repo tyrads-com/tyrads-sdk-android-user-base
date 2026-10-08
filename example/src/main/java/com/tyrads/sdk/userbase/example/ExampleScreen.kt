@@ -30,7 +30,9 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.tyrads.sdk.userbase.TyradsUserBase
 import com.tyrads.sdk.userbase.config.TyradsConfig
 import com.tyrads.sdk.userbase.config.TyradsEnvironment
+import com.tyrads.sdk.userbase.models.TyradsInitOptions
 import com.tyrads.sdk.userbase.models.TyradsOfferwallUrlOptions
+import com.tyrads.sdk.userbase.models.TyradsUserInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -44,14 +46,16 @@ private class SavedCredentials(context: Context) {
         "apiSecret" to (prefs.getString("apiSecret", "") ?: ""),
         "encKey" to (prefs.getString("encKey", "") ?: ""),
         "userId" to (prefs.getString("userId", "test_user_1") ?: "test_user_1"),
+        "userGroup" to (prefs.getString("userGroup", "") ?: ""),
     )
 
-    fun save(apiKey: String, apiSecret: String, encKey: String, userId: String) {
+    fun save(apiKey: String, apiSecret: String, encKey: String, userId: String, userGroup: String) {
         prefs.edit()
             .putString("apiKey", apiKey)
             .putString("apiSecret", apiSecret)
             .putString("encKey", encKey)
             .putString("userId", userId)
+            .putString("userGroup", userGroup)
             .apply()
     }
 }
@@ -66,6 +70,7 @@ fun ExampleScreen() {
     var apiSecret by remember { mutableStateOf("") }
     var encKey by remember { mutableStateOf("") }
     var userId by remember { mutableStateOf("test_user_1") }
+    var userGroup by remember { mutableStateOf("") }
     var campaignId by remember { mutableStateOf("") }
     var offerwallRoute by remember { mutableStateOf("") }
 
@@ -85,6 +90,7 @@ fun ExampleScreen() {
         apiSecret = saved.getValue("apiSecret")
         encKey = saved.getValue("encKey")
         userId = saved.getValue("userId")
+        userGroup = saved.getValue("userGroup")
     }
 
     fun runAction(key: String, onResult: (JsonResult) -> Unit, action: suspend CoroutineScope.() -> JsonResult) {
@@ -101,7 +107,7 @@ fun ExampleScreen() {
     }
 
     fun handleInitAndLogin() = runAction("session", { sessionInfo = it }) {
-        credentials.save(apiKey, apiSecret, encKey, userId)
+        credentials.save(apiKey, apiSecret, encKey, userId, userGroup)
         // stag branch only. main ships with the SDK's default (PRODUCTION).
         TyradsConfig.setEnvironment(TyradsEnvironment.STAGING)
         TyradsUserBase.init(
@@ -113,7 +119,10 @@ fun ExampleScreen() {
             interceptors = listOf(ChuckerInterceptor(context)),
         )
         // No push token to pass: the SDK fetches its own FCM token internally.
-        val result = TyradsUserBase.loginUser(userId.trim())
+        // userGroup is a free-form string: a plain label or a JSON string both work.
+        val options = userGroup.trim().ifBlank { null }
+            ?.let { TyradsInitOptions(userInfo = TyradsUserInfo(userGroup = it)) }
+        val result = TyradsUserBase.loginUser(userId.trim(), options)
         isReady = true
         formatSuccess(result)
     }
@@ -177,6 +186,12 @@ fun ExampleScreen() {
                 LabeledInput("API Secret", apiSecret, { apiSecret = it }, "API Secret")
                 LabeledInput("Enc Key (optional)", encKey, { encKey = it }, "32-char encryption key")
                 LabeledInput("User ID", userId, { userId = it }, "User ID")
+                LabeledInput(
+                    "User Group (optional)",
+                    userGroup,
+                    { userGroup = it },
+                    "e.g. High purchase user, or a JSON string",
+                )
                 Hint("Push token: handled internally by the SDK (nothing to configure here).")
 
                 ActionButton("Init & Login", ::handleInitAndLogin, loading = loadingKey == "session")
