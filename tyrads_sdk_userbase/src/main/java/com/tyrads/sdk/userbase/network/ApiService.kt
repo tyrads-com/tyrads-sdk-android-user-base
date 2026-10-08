@@ -1,15 +1,8 @@
 package com.tyrads.sdk.userbase.network
 
 import com.tyrads.sdk.userbase.constants.TyradsEndpoints
-import com.tyrads.sdk.userbase.models.ActivatedCampaignsResponse
-import com.tyrads.sdk.userbase.models.ActivatedSummaryResponse
-import com.tyrads.sdk.userbase.models.Campaign
-import com.tyrads.sdk.userbase.models.EngagementResponse
-import com.tyrads.sdk.userbase.models.TyradsInitResponse
-import com.tyrads.sdk.userbase.models.TyradsOffersResponse
-import com.tyrads.sdk.userbase.models.TyradsSingleResponse
-import kotlinx.serialization.json.JsonElement
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -17,36 +10,40 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import retrofit2.http.Url
 
+/**
+ * Every call returns the raw response body. The SDK hands that JSON to the host app untouched
+ * (same as the RN User Base SDK), so no response models live here.
+ */
 internal interface TyradsApiService {
 
     @POST(TyradsEndpoints.INITIALIZE)
-    suspend fun initialize(@Body body: RequestBody): Response<TyradsInitResponse>
+    suspend fun initialize(@Body body: RequestBody): Response<ResponseBody>
 
     @GET(TyradsEndpoints.CAMPAIGNS)
     suspend fun getCampaigns(
         @Query("lang") lang: String,
         @Query("mode") mode: String = "userbase",
-    ): Response<TyradsOffersResponse<Campaign>>
+    ): Response<ResponseBody>
 
     @GET
     suspend fun getCampaignDetail(
         @Url path: String,
         @Query("lang") lang: String,
         @Query("mode") mode: String = "userbase",
-    ): Response<TyradsSingleResponse<Campaign>>
+    ): Response<ResponseBody>
 
     @GET(TyradsEndpoints.CAMPAIGNS_ACTIVATED)
-    suspend fun getActivatedCampaigns(@Query("lang") lang: String): Response<ActivatedCampaignsResponse>
+    suspend fun getActivatedCampaigns(@Query("lang") lang: String): Response<ResponseBody>
 
     @GET(TyradsEndpoints.CAMPAIGNS_ACTIVATED_SUMMARY)
-    suspend fun getActivatedSummary(@Query("lang") lang: String): Response<ActivatedSummaryResponse>
+    suspend fun getActivatedSummary(@Query("lang") lang: String): Response<ResponseBody>
 
     @GET(TyradsEndpoints.ENGAGEMENT)
-    suspend fun getEngagement(@Query("lang") lang: String): Response<EngagementResponse>
+    suspend fun getEngagement(@Query("lang") lang: String): Response<ResponseBody>
 
     @POST
-    suspend fun activateCampaign(@Url path: String, @Body body: RequestBody): Response<JsonElement>
+    suspend fun activateCampaign(@Url path: String, @Body body: RequestBody): Response<ResponseBody>
 
     @POST(TyradsEndpoints.ACTIVITY)
-    suspend fun trackActivity(@Body body: RequestBody): Response<JsonElement>
+    suspend fun trackActivity(@Body body: RequestBody): Response<ResponseBody>
 }

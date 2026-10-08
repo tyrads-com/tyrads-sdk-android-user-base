@@ -3,19 +3,15 @@ package com.tyrads.sdk.userbase
 import android.content.Context
 import androidx.annotation.Keep
 import com.tyrads.sdk.userbase.callbacks.TyradsCallback
-import com.tyrads.sdk.userbase.callbacks.TyradsLoginCallback
 import com.tyrads.sdk.userbase.callbacks.TyradsResultCallback
 import com.tyrads.sdk.userbase.config.TyradsConfig
 import com.tyrads.sdk.userbase.constants.TyradsActivity
 import com.tyrads.sdk.userbase.device.DeviceDataCollector
-import com.tyrads.sdk.userbase.models.ActivatedCampaignsResponse
-import com.tyrads.sdk.userbase.models.Campaign
-import com.tyrads.sdk.userbase.models.CurrencySales
 import com.tyrads.sdk.userbase.models.TyradsInitOptions
-import com.tyrads.sdk.userbase.models.TyradsInitResponse
 import com.tyrads.sdk.userbase.models.TyradsOfferwallUrlOptions
 import com.tyrads.sdk.userbase.models.TyradsSession
 import com.tyrads.sdk.userbase.network.NetworkModule
+import com.tyrads.sdk.userbase.network.TyradsJson
 import com.tyrads.sdk.userbase.network.TyradsRepository
 import com.tyrads.sdk.userbase.offerwall.OfferwallUrlBuilder
 import com.tyrads.sdk.userbase.push.TyradsPushToken
@@ -25,11 +21,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Interceptor
 
 /**
- * Headless, API-only TyrAds SDK with no bundled offerwall UI. Every method mirrors the RN
+ * Headless, API-only TyrAds SDK with no bundled offerwall UI. Network calls return the raw API
+ * response body as a JSON `String`, untouched, so the host app parses it however it likes. Every
+ * method mirrors the RN
  * `@tyrads.com/tyrads-sdk-react-native-user-base` package's public surface 1:1, backed by the same
  * device-data / activity-tracking contract as the native tyrads-sdk-android.
  *
@@ -90,7 +89,8 @@ object TyradsUserBase {
 
     // region session
 
-    suspend fun loginUser(userId: String, options: TyradsInitOptions? = null): TyradsInitResponse {
+    /** `POST initialize`. Returns the raw response body (JSON). */
+    suspend fun loginUser(userId: String, options: TyradsInitOptions? = null): String {
         ensureInitialized()
         val deviceData = DeviceDataCollector.collect(appContext)
         val identity = DeviceDataCollector.resolveAdvertisingIdentity(appContext, sessionStore)
@@ -98,17 +98,21 @@ object TyradsUserBase {
         val response = repository.login(
             userId, deviceData, identity.identifierType, identity.identifier, pushToken, options,
         )
-        sessionStore.setUser(response.data.accountInfo.publisherUserId, response.data.token)
+        val data = TyradsJson.parseToJsonElement(response).jsonObject.getValue("data").jsonObject
+        sessionStore.setUser(
+            data.getValue("accountInfo").jsonObject.getValue("publisherUserId").jsonPrimitive.content,
+            data.getValue("token").jsonPrimitive.content,
+        )
         runCatching { repository.trackActivity(TyradsActivity.INITIALIZED) }
             .onFailure { Logger.w("Failed to track Initialized activity", it) }
         return response
     }
 
     @JvmOverloads
-    fun loginUser(userId: String, options: TyradsInitOptions? = null, callback: TyradsLoginCallback) {
+    fun loginUser(userId: String, options: TyradsInitOptions? = null, callback: TyradsResultCallback<String>) {
         callbackScope.launch {
             runCatching { loginUser(userId, options) }
-                .onSuccess { callback.onSuccess(it.data.newRegisteredUser) }
+                .onSuccess { callback.onSuccess(it) }
                 .onFailure { callback.onFailure(it.message ?: "Unknown error") }
         }
     }
@@ -142,12 +146,13 @@ object TyradsUserBase {
 
     // region campaigns
 
-    suspend fun getCampaigns(): List<Campaign> {
+    /** `GET campaigns?mode=userbase`. Returns the raw response body (JSON). */
+    suspend fun getCampaigns(): String {
         ensureInitialized()
         return repository.getCampaigns(sessionStore.currentLanguage)
     }
 
-    fun getCampaigns(callback: TyradsResultCallback<List<Campaign>>) {
+    fun getCampaigns(callback: TyradsResultCallback<String>) {
         callbackScope.launch {
             runCatching { getCampaigns() }
                 .onSuccess { callback.onSuccess(it) }
@@ -155,12 +160,13 @@ object TyradsUserBase {
         }
     }
 
-    suspend fun getCampaignDetail(campaignId: String): Campaign {
+    /** `GET campaigns/:id?mode=userbase`. Returns the raw response body (JSON). */
+    suspend fun getCampaignDetail(campaignId: String): String {
         ensureInitialized()
         return repository.getCampaignDetail(sessionStore.currentLanguage, campaignId)
     }
 
-    fun getCampaignDetail(campaignId: String, callback: TyradsResultCallback<Campaign>) {
+    fun getCampaignDetail(campaignId: String, callback: TyradsResultCallback<String>) {
         callbackScope.launch {
             runCatching { getCampaignDetail(campaignId) }
                 .onSuccess { callback.onSuccess(it) }
@@ -168,12 +174,13 @@ object TyradsUserBase {
         }
     }
 
-    suspend fun getActivatedCampaigns(): ActivatedCampaignsResponse {
+    /** `GET campaigns/activated`. Returns the raw response body (JSON). */
+    suspend fun getActivatedCampaigns(): String {
         ensureInitialized()
         return repository.getActivatedCampaigns(sessionStore.currentLanguage)
     }
 
-    fun getActivatedCampaigns(callback: TyradsResultCallback<ActivatedCampaignsResponse>) {
+    fun getActivatedCampaigns(callback: TyradsResultCallback<String>) {
         callbackScope.launch {
             runCatching { getActivatedCampaigns() }
                 .onSuccess { callback.onSuccess(it) }
@@ -181,6 +188,7 @@ object TyradsUserBase {
         }
     }
 
+    /** `GET campaigns/activated/summary`, unwrapped to `data.activeCampaignCount`. */
     suspend fun getActivatedSummary(): Int {
         ensureInitialized()
         return repository.getActivatedSummary(sessionStore.currentLanguage)
@@ -194,12 +202,13 @@ object TyradsUserBase {
         }
     }
 
-    suspend fun getEngagement(): CurrencySales? {
+    /** `GET account/engagement`, unwrapped to `data.CurrencySales` (JSON), or null when no sale is running. */
+    suspend fun getEngagement(): String? {
         ensureInitialized()
         return repository.getEngagement(sessionStore.currentLanguage)
     }
 
-    fun getEngagement(callback: TyradsResultCallback<CurrencySales?>) {
+    fun getEngagement(callback: TyradsResultCallback<String?>) {
         callbackScope.launch {
             runCatching { getEngagement() }
                 .onSuccess { callback.onSuccess(it) }
@@ -207,12 +216,13 @@ object TyradsUserBase {
         }
     }
 
-    suspend fun activateCampaign(campaignId: String): JsonElement {
+    /** `POST campaigns/:id/activate`. Returns the raw response body (JSON). */
+    suspend fun activateCampaign(campaignId: String): String {
         ensureInitialized()
         return repository.activateCampaign(campaignId)
     }
 
-    fun activateCampaign(campaignId: String, callback: TyradsResultCallback<JsonElement>) {
+    fun activateCampaign(campaignId: String, callback: TyradsResultCallback<String>) {
         callbackScope.launch {
             runCatching { activateCampaign(campaignId) }
                 .onSuccess { callback.onSuccess(it) }

@@ -33,37 +33,6 @@ internal data class TyradsInitRequest(
     val gender: Int? = null,
 )
 
-@Serializable
-data class TyradsInitResponse(
-    val code: Int,
-    val message: String,
-    val timestamp: Long,
-    val responseTime: Double,
-    val data: TyradsInitData,
-)
-
-@Serializable
-data class TyradsInitData(
-    val newRegisteredUser: Boolean = false,
-    val newRegisteredDevice: Boolean = false,
-    val accountInfo: TyradsAccountInfo,
-    val appInfo: TyradsAppInfo,
-    val token: String,
-)
-
-@Serializable
-data class TyradsAccountInfo(
-    val id: Long,
-    val publisherUserId: String,
-)
-
-@Serializable
-data class TyradsAppInfo(
-    val headerColor: String = "",
-    val mainColor: String = "",
-    val premiumColor: String = "",
-)
-
 /** Local, in-memory snapshot returned by `getSession()`, not a network response. */
 data class TyradsSession(
     val userId: String,

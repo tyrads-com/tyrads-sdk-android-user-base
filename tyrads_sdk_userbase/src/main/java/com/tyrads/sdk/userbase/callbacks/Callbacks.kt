@@ -12,8 +12,3 @@ interface TyradsResultCallback<T> {
     fun onFailure(error: String)
 }
 
-/** Java-friendly callback for `loginUser`. */
-interface TyradsLoginCallback {
-    fun onSuccess(isNewUser: Boolean)
-    fun onFailure(error: String)
-}

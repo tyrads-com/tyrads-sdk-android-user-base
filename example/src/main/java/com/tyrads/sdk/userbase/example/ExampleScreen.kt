@@ -28,13 +28,9 @@ import androidx.compose.ui.unit.sp
 import com.chuckerteam.chucker.api.Chucker
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.tyrads.sdk.userbase.TyradsUserBase
-import com.tyrads.sdk.userbase.models.Campaign
-import com.tyrads.sdk.userbase.models.ActivatedCampaignsResponse
-import com.tyrads.sdk.userbase.models.TyradsInitResponse
 import com.tyrads.sdk.userbase.models.TyradsOfferwallUrlOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.ListSerializer
 
 private const val PREFS_NAME = "tyrads_ub_example_credentials"
 
@@ -115,23 +111,23 @@ fun ExampleScreen() {
         // No push token to pass: the SDK fetches its own FCM token internally.
         val result = TyradsUserBase.loginUser(userId.trim())
         isReady = true
-        formatSuccess(TyradsInitResponse.serializer(), result)
+        formatSuccess(result)
     }
 
     fun handleGetRecommendation() = runAction("recommendation", { recommendation = it }) {
-        formatSuccess(ListSerializer(Campaign.serializer()), TyradsUserBase.getCampaigns())
+        formatSuccess(TyradsUserBase.getCampaigns())
     }
 
     fun handleGetDetail() = runAction("detail", { detail = it }) {
-        formatSuccess(Campaign.serializer(), TyradsUserBase.getCampaignDetail(campaignId.trim()))
+        formatSuccess(TyradsUserBase.getCampaignDetail(campaignId.trim()))
     }
 
     fun handleGetActivated() = runAction("activated", { activated = it }) {
-        formatSuccess(ActivatedCampaignsResponse.serializer(), TyradsUserBase.getActivatedCampaigns())
+        formatSuccess(TyradsUserBase.getActivatedCampaigns())
     }
 
     fun handleActivate() = runAction("activate", { activation = it }) {
-        formatSuccessJson(TyradsUserBase.activateCampaign(campaignId.trim()))
+        formatSuccess(TyradsUserBase.activateCampaign(campaignId.trim()))
     }
 
     fun handleGetOfferwallUrl() = runAction("offerwallUrl", { offerwallUrl = it }) {
