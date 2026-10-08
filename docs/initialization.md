@@ -85,6 +85,13 @@ TyradsUserBase.loginUser(
 )
 ```
 
+`userGroup` is a free-form string. A plain label works, and so does a JSON string for richer
+segmentation, for example:
+
+```kotlin
+userGroup = "{\"promo_affinity_ratio\":0.42,\"dynamic_payer_segment\":\"NonPayer\",\"activity_segment\":\"Tier 3\"}"
+```
+
 #### `TyradsInitOptions` reference
 
 | Parameter | Type | Description |
