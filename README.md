@@ -57,31 +57,35 @@ it on login.
 
 ### 3. Fetch data
 
-```kotlin
-val campaigns = TyradsUserBase.getCampaigns()
-val detail = TyradsUserBase.getCampaignDetail(campaigns.first().campaignId.toString())
-val activated = TyradsUserBase.getActivatedCampaigns()
+Network calls return the raw API response body as a JSON `String`, untouched. Parse it with
+whatever you like:
 
-TyradsUserBase.activateCampaign(campaigns.first().campaignId.toString())
+```kotlin
+val campaigns: String = TyradsUserBase.getCampaigns()
+val firstId = JSONObject(campaigns).getJSONArray("data").getJSONObject(0).getInt("campaignId")
+
+val detail: String = TyradsUserBase.getCampaignDetail(firstId.toString())
+val activated: String = TyradsUserBase.getActivatedCampaigns()
+TyradsUserBase.activateCampaign(firstId.toString())
 ```
 
 Every method has a `suspend fun` variant and a callback overload
-(`TyradsCallback`/`TyradsResultCallback<T>`/`TyradsLoginCallback`) for Java callers.
+(`TyradsCallback`/`TyradsResultCallback<T>`) for Java callers.
 
 ## API
 
-* `init(context, apiKey, apiSecret, encKey?, debugMode?)`: stores credentials, prepares the HTTP
+* `init(context, apiKey, apiSecret, encKey?, debugMode?, interceptors?)`: stores credentials, prepares the HTTP
   client. No network call.
-* `loginUser(userId, options?)`: `POST initialize`, opens the session and sends the SDK-managed FCM token.
+* `loginUser(userId, options?)`: `POST initialize`, opens the session and sends the SDK-managed FCM token. Raw JSON.
 * `logoutUser()`: clears the local session. Credentials from `init()` are kept.
 * `getSession()`: local session state. No network call.
 * `changeLanguage(lang)`: sets the `lang` query param used by campaign endpoints.
-* `getCampaigns()`: recommended/targeted campaigns.
-* `getCampaignDetail(campaignId)`
-* `getActivatedCampaigns()`
-* `getActivatedSummary()`
-* `getEngagement()`: currency-sale info.
-* `activateCampaign(campaignId)`
+* `getCampaigns()`: recommended/targeted campaigns. Raw JSON.
+* `getCampaignDetail(campaignId)`: raw JSON.
+* `getActivatedCampaigns()`: raw JSON.
+* `getActivatedSummary()`: `Int`, the active campaign count.
+* `getEngagement()`: currency-sale info, raw `CurrencySales` JSON or `null`.
+* `activateCampaign(campaignId)`: raw JSON.
 * `trackActivity(activity)`: use `TyradsActivity` constants or any custom string.
 * `getOfferwallUrl(options?)`: builds the same URL a native offerwall would open in a webview,
   returned as a plain `String` instead of rendered. Optional `route` (`TyradsDeepRoutes.SUPPORT`/

@@ -2,23 +2,28 @@ package com.tyrads.sdk.userbase.network
 
 import com.tyrads.sdk.userbase.constants.TyradsEndpoints
 import com.tyrads.sdk.userbase.crypto.AesGcmCrypto
-import com.tyrads.sdk.userbase.models.ActivatedCampaignsResponse
-import com.tyrads.sdk.userbase.models.Campaign
-import com.tyrads.sdk.userbase.models.CurrencySales
 import com.tyrads.sdk.userbase.models.TrackActivityRequest
 import com.tyrads.sdk.userbase.models.TyradsDeviceData
 import com.tyrads.sdk.userbase.models.TyradsInitOptions
 import com.tyrads.sdk.userbase.models.TyradsInitRequest
-import com.tyrads.sdk.userbase.models.TyradsInitResponse
 import com.tyrads.sdk.userbase.session.SessionStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.ResponseBody
 import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
-/** Thin wrapper over [TyradsApiService] handling body encryption, error normalization and response unwrapping. */
+/**
+ * Thin wrapper over [TyradsApiService] handling body encryption and error normalization. Responses
+ * are returned as the raw JSON body string. The SDK only peeks into the few fields it needs itself
+ * (session ids, the activated count, the currency sale), mirroring the RN User Base SDK.
+ */
 internal class TyradsRepository(
     private val networkModule: NetworkModule,
     private val sessionStore: SessionStore,
@@ -33,7 +38,7 @@ internal class TyradsRepository(
         identifier: String,
         devicePushToken: String?,
         options: TyradsInitOptions?,
-    ): TyradsInitResponse {
+    ): String {
         val request = TyradsInitRequest(
             publisherUserId = userId,
             platform = "Android",
@@ -67,24 +72,31 @@ internal class TyradsRepository(
         return execute("initialize") { api.initialize(body) }
     }
 
-    suspend fun getCampaigns(lang: String): List<Campaign> =
-        execute("campaigns") { api.getCampaigns(lang) }.data
+    suspend fun getCampaigns(lang: String): String =
+        execute("campaigns") { api.getCampaigns(lang) }
 
-    suspend fun getCampaignDetail(lang: String, campaignId: String): Campaign =
+    suspend fun getCampaignDetail(lang: String, campaignId: String): String =
         execute("campaign detail") {
             api.getCampaignDetail(TyradsEndpoints.campaignDetail(campaignId), lang)
-        }.data
+        }
 
-    suspend fun getActivatedCampaigns(lang: String): ActivatedCampaignsResponse =
+    suspend fun getActivatedCampaigns(lang: String): String =
         execute("activated campaigns") { api.getActivatedCampaigns(lang) }
 
-    suspend fun getActivatedSummary(lang: String): Int =
-        execute("activated summary") { api.getActivatedSummary(lang) }.data.activeCampaignCount
+    /** `data.activeCampaignCount`, like the RN SDK. */
+    suspend fun getActivatedSummary(lang: String): Int {
+        val body = execute("activated summary") { api.getActivatedSummary(lang) }
+        return dataOf(body)["activeCampaignCount"]?.jsonPrimitive?.intOrNull ?: 0
+    }
 
-    suspend fun getEngagement(lang: String): CurrencySales? =
-        execute("engagement") { api.getEngagement(lang) }.data.CurrencySales
+    /** `data.CurrencySales` as raw JSON, or null when no currency sale is running (like the RN SDK). */
+    suspend fun getEngagement(lang: String): String? {
+        val body = execute("engagement") { api.getEngagement(lang) }
+        val sales = dataOf(body)["CurrencySales"]
+        return if (sales == null || sales is JsonNull) null else sales.toString()
+    }
 
-    suspend fun activateCampaign(campaignId: String): JsonElement {
+    suspend fun activateCampaign(campaignId: String): String {
         val body = networkModule.jsonBody("{}")
         return execute("activate campaign") { api.activateCampaign(TyradsEndpoints.activateCampaign(campaignId), body) }
     }
@@ -106,7 +118,10 @@ internal class TyradsRepository(
         return networkModule.jsonBody(envelopeJson)
     }
 
-    private suspend fun <T> execute(label: String, call: suspend () -> Response<T>): T =
+    private fun dataOf(body: String): JsonObject =
+        (json.parseToJsonElement(body).jsonObject["data"] as? JsonObject) ?: JsonObject(emptyMap())
+
+    private suspend fun execute(label: String, call: suspend () -> Response<ResponseBody>): String =
         withContext(Dispatchers.IO) {
             val response = try {
                 call()
@@ -121,6 +136,6 @@ internal class TyradsRepository(
             if (!response.isSuccessful) {
                 throw TyradsHttpError.Server(response.code(), response.errorBody()?.string())
             }
-            response.body() ?: throw TyradsHttpError.Unknown(IllegalStateException("Empty body for $label"))
+            response.body()?.string() ?: throw TyradsHttpError.Unknown(IllegalStateException("Empty body for $label"))
         }
 }

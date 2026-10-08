@@ -1,14 +1,6 @@
 package com.tyrads.sdk.userbase
 
 import android.util.Base64
-import com.tyrads.sdk.userbase.models.ActivatedSummaryData
-import com.tyrads.sdk.userbase.models.ActivatedSummaryResponse
-import com.tyrads.sdk.userbase.models.Campaign
-import com.tyrads.sdk.userbase.models.CampaignTracking
-import com.tyrads.sdk.userbase.models.CurrencySales
-import com.tyrads.sdk.userbase.models.EngagementData
-import com.tyrads.sdk.userbase.models.EngagementResponse
-import com.tyrads.sdk.userbase.models.TyradsOffersResponse
 import com.tyrads.sdk.userbase.network.NetworkModule
 import com.tyrads.sdk.userbase.network.TyradsApiService
 import com.tyrads.sdk.userbase.network.TyradsHttpError
@@ -116,27 +108,18 @@ class TyradsRepositoryTest {
     }
 
     @Test
-    fun `campaigns unwraps the data array`() = runTest {
-        coEvery { api.getCampaigns(any(), any()) } returns Response.success(
-            TyradsOffersResponse(
-                code = 200,
-                data = listOf(campaign()),
-                message = "OK",
-                timestamp = 1L,
-                responseTime = 1.5,
-            ),
-        )
+    fun `campaigns are returned as the raw body, untouched`() = runTest {
+        // Includes an object-shaped shorterMaxTimeRule, which crashed the old typed models.
+        val raw = """{"code":200,"data":[{"campaignId":4785,"title":null,"events":[{"shorterMaxTimeRule":{"shorterMaxTimePayout":{"0":{}}}}]}],"message":"OK"}"""
+        coEvery { api.getCampaigns(any(), any()) } returns Response.success(json(raw))
 
-        val campaigns = repository.getCampaigns("en-US")
-
-        assertEquals(1, campaigns.size)
-        assertEquals(4785, campaigns.first().campaignId)
+        assertEquals(raw, repository.getCampaigns("en-US"))
     }
 
     @Test
     fun `activated summary unwraps the count`() = runTest {
         coEvery { api.getActivatedSummary(any()) } returns
-            Response.success(ActivatedSummaryResponse(ActivatedSummaryData(activeCampaignCount = 7)))
+            Response.success(json("""{"code":200,"data":{"activeCampaignCount":7},"message":"OK"}"""))
 
         assertEquals(7, repository.getActivatedSummary("en-US"))
     }
@@ -144,23 +127,23 @@ class TyradsRepositoryTest {
     @Test
     fun `engagement returns null when no currency sale is running`() = runTest {
         coEvery { api.getEngagement(any()) } returns
-            Response.success(EngagementResponse(EngagementData(CurrencySales = null)))
+            Response.success(json("""{"code":200,"data":{"CurrencySales":null},"message":"OK"}"""))
 
         assertNull(repository.getEngagement("en-US"))
     }
 
     @Test
-    fun `engagement unwraps an active currency sale`() = runTest {
+    fun `engagement unwraps an active currency sale as raw json`() = runTest {
         coEvery { api.getEngagement(any()) } returns Response.success(
-            EngagementResponse(EngagementData(CurrencySales = CurrencySales(name = "Double Coins"))),
+            json("""{"code":200,"data":{"CurrencySales":{"name":"Double Coins","multiplier":2}},"message":"OK"}"""),
         )
 
-        assertEquals("Double Coins", repository.getEngagement("en-US")?.name)
+        assertEquals("""{"name":"Double Coins","multiplier":2}""", repository.getEngagement("en-US"))
     }
 
     @Test
     fun `plain mode sends the activity payload as readable json`() = runTest {
-        coEvery { api.trackActivity(any()) } returns Response.success(TyradsJson.parseToJsonElement("{}"))
+        coEvery { api.trackActivity(any()) } returns Response.success(json("{}"))
 
         repository.trackActivity("Opened")
 
@@ -171,7 +154,7 @@ class TyradsRepositoryTest {
     fun `secure mode replaces the payload with an encrypted envelope`() = runTest {
         every { sessionStore.isSecure } returns true
         every { sessionStore.encKey } returns "test-only-32-byte-encryption-key"
-        coEvery { api.trackActivity(any()) } returns Response.success(TyradsJson.parseToJsonElement("{}"))
+        coEvery { api.trackActivity(any()) } returns Response.success(json("{}"))
 
         repository.trackActivity("Opened")
 
@@ -182,13 +165,7 @@ class TyradsRepositoryTest {
         assertTrue(sent.contains("\"tag\""))
     }
 
-    private fun campaign() = Campaign(
-        campaignId = 4785,
-        tracking = CampaignTracking(),
-        packageName = "id6745805828",
-        os = "iOS",
-        title = "Woody Block Color Blast",
-    )
+    private fun json(body: String) = body.toResponseBody("application/json".toMediaType())
 
     /** `assertThrows` needs a non-suspending block; the repository dispatches internally anyway. */
     private fun <T> runBlockingCatching(block: suspend () -> T): T =

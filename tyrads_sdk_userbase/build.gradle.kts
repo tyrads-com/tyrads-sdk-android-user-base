@@ -44,9 +44,8 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    // api: JsonElement (activateCampaign's return type) is part of the public surface, so
-    // consumers need kotlinx-serialization-json on their compile classpath too.
-    api(libs.kotlinx.serialization.json)
+    // Internal only: responses go out as raw JSON strings, so no serialization types are public.
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.retrofit.core)

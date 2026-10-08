@@ -1,11 +1,13 @@
 # Initialization
 
 This SDK is headless: there's no offerwall, no premium widget, no in-app notification popups.
-Every method returns typed data (or throws) so you can build your own UI (or none at all) on top
-of it. The integration flow is simple: `init` → `loginUser` → everything else.
+Every network call returns the raw API response body as a JSON `String` (or throws), untouched, so
+you parse it with whatever you like (`org.json`, Gson, Moshi, kotlinx.serialization) and build your
+own UI (or none at all) on top of it. The integration flow is simple: `init` → `loginUser` →
+everything else.
 
 Every network-backed method has a `suspend fun` (call from a coroutine scope) and a Java-friendly
-callback overload (`TyradsCallback` / `TyradsResultCallback<T>` / `TyradsLoginCallback`).
+callback overload (`TyradsCallback` / `TyradsResultCallback<T>`).
 Kotlin snippets below use the suspend form.
 
 ### 1. Initialize
@@ -41,7 +43,7 @@ network (`POST initialize`) and opens the session. The response's `accountInfo.p
 becomes the `X-User-ID` header on every call after this.
 
 ```kotlin
-val session = TyradsUserBase.loginUser("my_unique_user_123")
+val response: String = TyradsUserBase.loginUser("my_unique_user_123") // raw JSON body
 ```
 
 #### Advanced login (attribution + user info)
@@ -94,109 +96,72 @@ TyradsUserBase.loginUser(
 
 Note: `sub1`, `sub2`, `sub5` are not returned on postback; `sub3` and `sub4` are.
 
-#### `loginUser` response (`TyradsInitResponse`)
+#### `loginUser` response
 
-```kotlin
-@Serializable
-data class TyradsInitResponse(
-    val code: Int,
-    val message: String,
-    val timestamp: Long,
-    val responseTime: Double, // fractional milliseconds, not an integer
-    val data: TyradsInitData,
-)
+The raw `POST initialize` body, for example:
 
-data class TyradsInitData(
-    val newRegisteredUser: Boolean,
-    val newRegisteredDevice: Boolean,
-    val accountInfo: TyradsAccountInfo, // { id: Long, publisherUserId: String }
-    val appInfo: TyradsAppInfo,         // { headerColor, mainColor, premiumColor: String }
-    val token: String, // session token, stored locally and returned by getSession()
-)
+```json
+{
+  "code": 200,
+  "message": "OK",
+  "data": {
+    "newRegisteredUser": false,
+    "newRegisteredDevice": false,
+    "accountInfo": { "id": 47152543, "publisherUserId": "my_unique_user_123" },
+    "appInfo": { "headerColor": "#000F1E", "mainColor": "#b32da7", "premiumColor": "#7715A6" },
+    "token": "eyJhbGciOi..."
+  }
+}
 ```
 
-`data.accountInfo.publisherUserId` is what subsequently gets sent as `X-User-ID`; `data.token` is
-stored locally and returned by `getSession()`. `appInfo`'s colors are meant for UI theming, safe
-to ignore if you don't need them.
+The SDK reads `data.accountInfo.publisherUserId` (sent as `X-User-ID` from then on) and
+`data.token` (returned by `getSession()`) for itself. `appInfo`'s colors are meant for UI theming,
+safe to ignore if you don't need them.
 
 ### 3. Campaigns
 
-```kotlin
-val campaigns = TyradsUserBase.getCampaigns()
-// -> GET campaigns?mode=userbase, recommended/targeted campaigns
-
-val detail = TyradsUserBase.getCampaignDetail(campaigns.first().campaignId.toString())
-// -> GET campaigns/:id?mode=userbase, same Campaign shape, single object
-
-val activated = TyradsUserBase.getActivatedCampaigns()
-// -> GET campaigns/activated
-
-val summary = TyradsUserBase.getActivatedSummary()
-// -> GET campaigns/activated/summary -> Int
-```
-
-#### `Campaign` shape (`getCampaigns()` and `getCampaignDetail()` both return this)
-
-`campaigns/:id` under `mode=userbase` returns the exact same flat shape as the list, as a single
-object (not wrapped in an array). There is no separate, richer "detail" schema in this mode.
+All three return the raw response body as a JSON `String`:
 
 ```kotlin
-@Serializable
-data class Campaign(
-    val campaignId: Int,
-    val tracking: CampaignTracking,          // { impressionUrl, clickUrl, s2sClickUrl }
-    val packageName: String,                 // "" when the API sends null (same for os/title)
-    val os: String,
-    val title: String,
-    val thumbnail: String?,
-    val creativeUrl: String?,
-    val campaignDescription: String?,
-    val installedOn: String?,
-    val activatedOn: String?,
-    val uninstalledOn: String?,
-    val expiredOn: String?,
-    val expiredInSeconds: Long?,
-    val currencies: List<AvailableCurrency>,  // { currencyId, currencyIcon, currencyName }
-    val activeCurrencyId: Int?,
-    val payoutSummary: Map<String, PayoutSummary>, // keyed by currencyId
-    val earnedPayout: Map<String, JsonElement>,
-    val stage: CampaignStage?,               // { level, multiplier, nextLevel, nextMultiplier }
-    val engagements: List<JsonElement>,
-    val events: List<CampaignEvent>,
-)
+val campaigns: String = TyradsUserBase.getCampaigns()
+// -> GET campaigns?mode=userbase: { "code": 200, "data": [ Campaign, ... ], "meta": {...}, "message": "OK" }
+
+val detail: String = TyradsUserBase.getCampaignDetail("4785")
+// -> GET campaigns/:id?mode=userbase: { "code": 200, "data": Campaign, "message": "OK" }
+
+val activated: String = TyradsUserBase.getActivatedCampaigns()
+// -> GET campaigns/activated: { "data": [ { "groupName", "availableCurrencies", "campaigns": [...] } ], "message": "OK" }
+
+val summary: Int = TyradsUserBase.getActivatedSummary()
+// -> GET campaigns/activated/summary, unwrapped to data.activeCampaignCount
 ```
 
-`CampaignEvent` fields: `appEventId`, `identifier`, `eventName`, `eventDescription`,
-`allowDuplicateEvents`, `payoutInfo` (`Map<String, CampaignEventPayout>`, just
-`{ payoutAmountConverted }`), `rewardedOn`, `conversionStatus`, `lockEventRule`/`hideEventRule`
-(arrays), `shorterMaxTimeRule` (`ShorterMaxTimeRule?`: `{ shorterMaxTimePayout, shorterMaxTimeRemainSeconds,
-specialCompletionReason }`), `isTicketSubmitted`, `ticketStatus`,
-`ticketUrl`, `ticketRejectReason`, `ticketRejectionCode`, `count`, `limit`, `maxTime`,
-`maxTimeMetric`, `maxTimeRemainSeconds`, `enforceMaxTimeCompletion`, `rewardingExpiredOn`,
-`rewardingExpiredInSeconds`, `type` (`Playable`/`LimitedTime`/`ShorterMaxTime`/`Microcharge`), plus
-`isLimitedTimeEvent`/`limitedTimeEventRemainingSeconds` (LimitedTime) and `dailyCount`/`dailyLimit`/
-`totalDailyUniqueCount`/`totalDailyUniqueLimit`/`dailyUniqueTodayExist` (Microcharge).
+Parse it with whatever you prefer, for example with the platform's `org.json`:
 
-#### `ActivatedCampaign` shape (`getActivatedCampaigns()`, inside each group's `campaigns[]`)
+```kotlin
+val firstId = JSONObject(campaigns).getJSONArray("data").getJSONObject(0).getInt("campaignId")
+```
 
-`campaignId`, `campaignName`, `campaignDescription`, `campaignType`, `campaignPremium`,
-`validity` (`isRetryDownload`/`isActivated`/`isOldUser`/`expiredOn`/`expiredInSeconds`/
-`isInstalled`/`activeCurrencyId`/`capReached`), `availableCurrencies`, `campaignStatus`, `group`,
-`stage`, `eventSummary` (`playableEventCount*`/`microchargeEventCount*` `Available`/`Completed`/
-`Total`), `limitedTimeEvents[]`, `shorterMaxTimeEvents[]`.
+The `Campaign` object (fields, events, payout maps, deadlines, statuses) is documented field by
+field in the User Base API reference. `campaigns/:id` returns the exact same shape as one list
+item.
+
+{% hint style="warning" %}
+Always check `errorCode` in the body too. Some errors come back with HTTP 200 and the error code
+only in the body, and a 200 without `data` means no offers are available right now.
+{% endhint %}
 
 ### 4. Activate a Campaign
 
 ```kotlin
-val result = TyradsUserBase.activateCampaign(campaigns.first().campaignId.toString())
-// -> POST campaigns/:id/activate, e.g. { "code": 200, "data": { "isCampaignActivated": true }, ... }
+val result: String = TyradsUserBase.activateCampaign("4785")
+// -> POST campaigns/:id/activate: { "code": 200, "data": { "isCampaignActivated": true }, ... }
 ```
 
-Returns the raw JSON body (`kotlinx.serialization.json.JsonElement`). The shape is a thin
-passthrough, not modeled as a data class. The response includes the campaign's
-`tracking.clickUrl` (from the `Campaign` you already fetched). Open it yourself
-(`Intent(Intent.ACTION_VIEW, Uri.parse(url))`, a `CustomTabsIntent`, or an in-app `WebView`) if you
-want to send the user onward; this SDK never opens anything on its own.
+Returns the raw JSON body. To send the user onward, open the campaign's `tracking.clickUrl`
+(from the campaign JSON you already fetched) yourself with `Intent(Intent.ACTION_VIEW,
+Uri.parse(url))`, a `CustomTabsIntent`, or an in-app `WebView`. This SDK never opens anything on
+its own.
 
 ### 5. Offerwall URL (no webview shown)
 
@@ -221,13 +186,13 @@ Throws `IllegalStateException` if there's no active session (call `loginUser` fi
 ### 6. Currency Sale / Engagement Data
 
 ```kotlin
-val engagement = TyradsUserBase.getEngagement()
-// -> GET account/engagement -> CurrencySales?
+val engagement: String? = TyradsUserBase.getEngagement()
+// -> GET account/engagement, unwrapped to data.CurrencySales
 ```
 
-`CurrencySales?` is `null` whenever there's no currency sale currently active. When non-null:
+`null` whenever there's no currency sale currently active. Otherwise the raw `CurrencySales` JSON:
 `{ name, multiplier, bannerUrl, dateStart, dateEnd, remainingTimeSeconds }`. See also
-`limitedTimeEvents` on `getActivatedCampaigns()`.
+`limitedTimeEvents` in `getActivatedCampaigns()`.
 
 ### 7. Manual Tracking
 
@@ -275,5 +240,6 @@ comes back in.
 * `init` must be called before any other SDK method.
 * `loginUser` must be called before any campaign/offerwall/tracking method.
 * Every network-backed method is a `suspend fun` (call from a coroutine scope), or use the
-  matching `TyradsCallback`/`TyradsResultCallback<T>`/`TyradsLoginCallback` overload from Java.
+  matching `TyradsCallback`/`TyradsResultCallback<T>` overload from Java (results are
+  `TyradsResultCallback<String>` for the raw-JSON calls).
   `getSession()` and `changeLanguage()` are synchronous local-state operations either way.
