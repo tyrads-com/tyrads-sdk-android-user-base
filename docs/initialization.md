@@ -145,7 +145,7 @@ object (not wrapped in an array). There is no separate, richer "detail" schema i
 data class Campaign(
     val campaignId: Int,
     val tracking: CampaignTracking,          // { impressionUrl, clickUrl, s2sClickUrl }
-    val packageName: String,
+    val packageName: String,                 // "" when the API sends null (same for os/title)
     val os: String,
     val title: String,
     val thumbnail: String?,
@@ -160,7 +160,7 @@ data class Campaign(
     val activeCurrencyId: Int?,
     val payoutSummary: Map<String, PayoutSummary>, // keyed by currencyId
     val earnedPayout: Map<String, JsonElement>,
-    val stage: String?,
+    val stage: CampaignStage?,               // { level, multiplier, nextLevel, nextMultiplier }
     val engagements: List<JsonElement>,
     val events: List<CampaignEvent>,
 )
@@ -169,10 +169,13 @@ data class Campaign(
 `CampaignEvent` fields: `appEventId`, `identifier`, `eventName`, `eventDescription`,
 `allowDuplicateEvents`, `payoutInfo` (`Map<String, CampaignEventPayout>`, just
 `{ payoutAmountConverted }`), `rewardedOn`, `conversionStatus`, `lockEventRule`/`hideEventRule`
-(arrays), `shorterMaxTimeRule`, `isTicketSubmitted`, `ticketStatus`,
+(arrays), `shorterMaxTimeRule` (`ShorterMaxTimeRule?`: `{ shorterMaxTimePayout, shorterMaxTimeRemainSeconds,
+specialCompletionReason }`), `isTicketSubmitted`, `ticketStatus`,
 `ticketUrl`, `ticketRejectReason`, `ticketRejectionCode`, `count`, `limit`, `maxTime`,
 `maxTimeMetric`, `maxTimeRemainSeconds`, `enforceMaxTimeCompletion`, `rewardingExpiredOn`,
-`rewardingExpiredInSeconds`, `type` (e.g. `"Playable"`).
+`rewardingExpiredInSeconds`, `type` (`Playable`/`LimitedTime`/`ShorterMaxTime`/`Microcharge`), plus
+`isLimitedTimeEvent`/`limitedTimeEventRemainingSeconds` (LimitedTime) and `dailyCount`/`dailyLimit`/
+`totalDailyUniqueCount`/`totalDailyUniqueLimit`/`dailyUniqueTodayExist` (Microcharge).
 
 #### `ActivatedCampaign` shape (`getActivatedCampaigns()`, inside each group's `campaigns[]`)
 

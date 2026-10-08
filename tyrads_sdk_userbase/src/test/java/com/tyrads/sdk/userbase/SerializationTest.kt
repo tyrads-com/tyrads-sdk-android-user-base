@@ -29,6 +29,81 @@ class SerializationTest {
     private val json: Json = TyradsJson
 
     @Test
+    fun `campaign list parses object-shaped shorterMaxTimeRule, stage and null strings`() {
+        // Regression: QA hit "Expected beginning of the string, but got { at path:
+        // $.data[5].events[0].shorterMaxTimeRule" because it was typed as String.
+        val payload = """
+            {
+              "code": 200,
+              "message": "OK",
+              "timestamp": 1791304545567,
+              "responseTime": 320.5,
+              "meta": { "itemCount": 1 },
+              "data": [
+                {
+                  "campaignId": 91234,
+                  "tracking": null,
+                  "packageName": null,
+                  "os": null,
+                  "title": null,
+                  "currencies": [ { "currencyId": 0, "currencyName": null, "currencyIcon": null } ],
+                  "activeCurrencyId": 0,
+                  "payoutSummary": {},
+                  "earnedPayout": {},
+                  "stage": { "level": 2, "multiplier": 1.5, "nextLevel": 3, "nextMultiplier": 2.0 },
+                  "engagements": [],
+                  "events": [
+                    {
+                      "type": "ShorterMaxTime",
+                      "appEventId": 8830,
+                      "identifier": "event_identifier_2",
+                      "eventName": null,
+                      "payoutInfo": { "0": { "payoutAmountConverted": 300 } },
+                      "lockEventRule": [],
+                      "hideEventRule": [],
+                      "shorterMaxTimeRule": {
+                        "shorterMaxTimePayout": { "0": { "shorterMaxTimeAdditionConverted": 25 } },
+                        "shorterMaxTimeRemainSeconds": 3600,
+                        "specialCompletionReason": "ShorterMaxTime"
+                      },
+                      "maxTime": null,
+                      "count": null
+                    },
+                    {
+                      "type": "Microcharge",
+                      "appEventId": 8870,
+                      "identifier": "event_identifier_3",
+                      "eventName": "Open the game daily",
+                      "count": 3,
+                      "limit": 30,
+                      "dailyCount": 1,
+                      "dailyLimit": 1,
+                      "totalDailyUniqueCount": 3,
+                      "totalDailyUniqueLimit": 30,
+                      "dailyUniqueTodayExist": true
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val parsed = json.decodeFromString(TyradsOffersResponse.serializer(Campaign.serializer()), payload)
+        val campaign = parsed.data.single()
+
+        assertEquals("", campaign.title)
+        assertEquals("", campaign.currencies.single().currencyName)
+        assertEquals(1.5, campaign.stage!!.multiplier!!, 0.0)
+        val speedBonus = campaign.events[0].shorterMaxTimeRule!!
+        assertEquals(25.0, speedBonus.shorterMaxTimePayout.getValue("0").shorterMaxTimeAdditionConverted, 0.0)
+        assertEquals(3600L, speedBonus.shorterMaxTimeRemainSeconds)
+        assertEquals("ShorterMaxTime", speedBonus.specialCompletionReason)
+        assertEquals("", campaign.events[0].eventName)
+        assertEquals(1, campaign.events[1].dailyLimit)
+        assertEquals(true, campaign.events[1].dailyUniqueTodayExist)
+    }
+
+    @Test
     fun `init response parses fractional responseTime`() {
         val payload = """
             {

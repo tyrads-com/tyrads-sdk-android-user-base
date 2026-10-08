@@ -30,8 +30,9 @@ internal data class TyradsSingleResponse<T>(
 @Serializable
 data class AvailableCurrency(
     val currencyId: Int,
-    val currencyIcon: String,
-    val currencyName: String,
+    // Nullable on the wire; defaults (with coerceInputValues) keep a null from crashing the parse.
+    val currencyIcon: String = "",
+    val currencyName: String = "",
 )
 
 @Serializable
@@ -39,6 +40,30 @@ data class PayoutSummary(
     val totalPayoutConverted: Double = 0.0,
     val totalPlayablePayoutConverted: Double = 0.0,
     val totalMicrochargePayoutConverted: Double = 0.0,
+)
+
+/** Speed bonus for completing an event faster. Shape per the User Base API Reference. */
+@Serializable
+data class ShorterMaxTimeRule(
+    /** Extra reward per currency ID, e.g. `{ "1": { "shorterMaxTimeAdditionConverted": 25 } }`. */
+    val shorterMaxTimePayout: Map<String, ShorterMaxTimePayout> = emptyMap(),
+    val shorterMaxTimeRemainSeconds: Long? = null,
+    /** `ShorterMaxTime` or `Lto` (limited-time offer). */
+    val specialCompletionReason: String? = null,
+)
+
+@Serializable
+data class ShorterMaxTimePayout(
+    val shorterMaxTimeAdditionConverted: Double = 0.0,
+)
+
+/** Level-based reward multiplier. `null` on the campaign when the feature isn't active. */
+@Serializable
+data class CampaignStage(
+    val level: Int? = null,
+    val multiplier: Double? = null,
+    val nextLevel: Int? = null,
+    val nextMultiplier: Double? = null,
 )
 
 @Serializable
@@ -56,8 +81,9 @@ data class CampaignEventPayout(
 @Serializable
 data class CampaignEvent(
     val appEventId: Int,
-    val identifier: String,
-    val eventName: String,
+    val identifier: String = "",
+    // Shown as `#` while the event is hidden; nullable on the wire.
+    val eventName: String = "",
     val eventDescription: String? = null,
     val allowDuplicateEvents: Boolean = false,
     val payoutInfo: Map<String, CampaignEventPayout> = emptyMap(),
@@ -65,7 +91,7 @@ data class CampaignEvent(
     val conversionStatus: String? = null,
     val lockEventRule: List<JsonElement> = emptyList(),
     val hideEventRule: List<JsonElement> = emptyList(),
-    val shorterMaxTimeRule: String? = null,
+    val shorterMaxTimeRule: ShorterMaxTimeRule? = null,
     val isTicketSubmitted: Boolean? = null,
     val ticketStatus: String? = null,
     val ticketUrl: String? = null,
@@ -79,7 +105,17 @@ data class CampaignEvent(
     val enforceMaxTimeCompletion: Boolean = false,
     val rewardingExpiredOn: String? = null,
     val rewardingExpiredInSeconds: Long? = null,
-    val type: String,
+    /** `Playable`, `LimitedTime`, `ShorterMaxTime` or `Microcharge`. */
+    val type: String = "",
+    // LimitedTime events
+    val isLimitedTimeEvent: Boolean = false,
+    val limitedTimeEventRemainingSeconds: Long? = null,
+    // Microcharge events
+    val dailyCount: Int? = null,
+    val dailyLimit: Int? = null,
+    val totalDailyUniqueCount: Int? = null,
+    val totalDailyUniqueLimit: Int? = null,
+    val dailyUniqueTodayExist: Boolean? = null,
 )
 
 /**
@@ -91,9 +127,10 @@ data class CampaignEvent(
 data class Campaign(
     val campaignId: Int,
     val tracking: CampaignTracking = CampaignTracking(),
-    val packageName: String,
-    val os: String,
-    val title: String,
+    // Nullable on the wire; defaults (with coerceInputValues) keep a null from crashing the parse.
+    val packageName: String = "",
+    val os: String = "",
+    val title: String = "",
     val thumbnail: String? = null,
     val creativeUrl: String? = null,
     val campaignDescription: String? = null,
@@ -106,7 +143,7 @@ data class Campaign(
     val activeCurrencyId: Int? = null,
     val payoutSummary: Map<String, PayoutSummary> = emptyMap(),
     val earnedPayout: Map<String, JsonElement> = emptyMap(),
-    val stage: String? = null,
+    val stage: CampaignStage? = null,
     val engagements: List<JsonElement> = emptyList(),
     val events: List<CampaignEvent> = emptyList(),
 )
@@ -129,7 +166,7 @@ data class ActivatedCampaignsResponse(
 
 @Serializable
 data class ActivatedCampaignsGroup(
-    val groupName: String,
+    val groupName: String = "",
     val availableCurrencies: Map<String, AvailableCurrency> = emptyMap(),
     val campaigns: List<ActivatedCampaign> = emptyList(),
 )
@@ -159,8 +196,8 @@ data class PayoutInfo(
 data class LimitedTimeEvent(
     val appEventId: Int,
     val conversionStatus: String? = null,
-    val identifier: String,
-    val eventName: String,
+    val identifier: String = "",
+    val eventName: String = "",
     val eventDescription: String? = null,
     val eventCategory: String? = null,
     val payoutInfo: Map<String, PayoutInfo> = emptyMap(),
@@ -175,7 +212,7 @@ data class LimitedTimeEvent(
     val ticketStatus: String? = null,
     val lockEventRule: JsonElement? = null,
     val hideEventRule: JsonElement? = null,
-    val shorterMaxTimeRule: String? = null,
+    val shorterMaxTimeRule: ShorterMaxTimeRule? = null,
     val specialCompletionReason: String? = null,
     val dailyCount: Int = 0,
     val dailyLimit: Int? = null,
@@ -211,7 +248,8 @@ data class ActivatedCampaign(
     val availableCurrencies: Map<String, AvailableCurrency> = emptyMap(),
     val campaignStatus: String? = null,
     val group: String? = null,
-    val stage: String? = null,
+    // Shape not confirmed for activated campaigns yet, so kept raw.
+    val stage: JsonElement? = null,
     val eventSummary: CampaignEventSummary = CampaignEventSummary(),
     val limitedTimeEvents: List<LimitedTimeEvent> = emptyList(),
     val shorterMaxTimeEvents: List<JsonElement> = emptyList(),
